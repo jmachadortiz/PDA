@@ -1,0 +1,319 @@
+#ifndef TRANSACCION_H
+#define TRANSACCION_H
+class Transaccion
+{
+int numero, codigo;
+float monto;
+char tipo;
+string nombretipo;
+bool estado;
+    public:
+    void guardar();
+    bool validar(int);
+    void retiro(int, float);
+    bool validarmonto(int, float);
+    void mostrar();
+    void deposito(int, float);
+    void mod_transacciones(int, int);
+    void eliminar(int,int);
+};
+
+void Transaccion::eliminar(int cedula, int numero_cuenta){
+    char linea[80];
+    string clave;
+    ifstream in;
+    ofstream o;
+    in.open("Transacciones.txt", ios::in);
+    o.open("transacciones_aux.txt", ios::out);
+    while(in && !in.eof())
+    {
+        in.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0)
+        {
+            numero=atoi(clave.substr(0, 30).c_str());
+            nombretipo=clave.substr(30, 10);
+            monto=atof(clave.substr(40, 10).c_str());
+            codigo=atoi(clave.substr(50, 10).c_str());
+            estado=atoi(clave.substr(60, 2).c_str());
+            if(numero == numero_cuenta){
+                o<<setiosflags(ios::left)<<setw(30)<<numero;
+                o<<setiosflags(ios::left)<<setw(10)<<nombretipo;
+                o<<setiosflags(ios::left)<<setw(10)<<monto;
+                o<<setiosflags(ios::left)<<setw(10)<<codigo;
+                o<<setiosflags(ios::left)<<setw(2)<<false;
+                o<<endl;
+            }
+            else{
+                o<<setiosflags(ios::left)<<setw(30)<<numero;
+                o<<setiosflags(ios::left)<<setw(10)<<nombretipo;
+                o<<setiosflags(ios::left)<<setw(10)<<monto;
+                o<<setiosflags(ios::left)<<setw(10)<<codigo;
+                o<<setiosflags(ios::left)<<setw(2)<<true;
+                o<<endl;
+            }
+        }
+    }
+    in.close();
+    o.close();
+    remove("Transacciones.txt");
+    rename("transacciones_aux.txt","Transacciones.txt");
+}
+
+
+void Transaccion::mod_transacciones(int n, int n2)
+{
+    char linea[80];
+    string clave;
+    ifstream in;
+    ofstream o;
+    in.open("Transacciones.txt", ios::in);
+    o.open("transacciones_aux.txt", ios::out);
+    while(in && !in.eof())
+    {
+        in.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0)
+        {
+            numero=atoi(clave.substr(0, 30).c_str());
+            nombretipo=clave.substr(30, 10);
+            monto=atof(clave.substr(40, 10).c_str());
+            codigo=atoi(clave.substr(50, 10).c_str());
+            estado=atoi(clave.substr(60, 2).c_str());
+            if(numero==n)
+                o<<setiosflags(ios::left)<<setw(30)<<numero;
+            else
+                o<<setiosflags(ios::left)<<setw(30)<<n2;
+            o<<setiosflags(ios::left)<<setw(10)<<nombretipo;
+            o<<setiosflags(ios::left)<<setw(10)<<monto;
+            o<<setiosflags(ios::left)<<setw(10)<<codigo;
+            o<<setiosflags(ios::left)<<setw(2)<<estado;
+            o<<endl;
+
+        }
+    }
+    remove("Transacciones.txt");
+    rename("transacciones_aux.txt","Transacciones.txt");
+}
+
+bool Transaccion::validar(int n)
+{
+bool v=false;
+char linea[80];
+string clave;
+int nc;
+int e;
+ifstream in;
+in.open("cuentas.txt", ios::in);
+while(in && !in.eof())
+{
+    in.getline(linea, 80);
+    clave=linea;
+    if(clave.length() > 0 )
+    {
+        nc=atoi((clave.substr(10,39)).c_str());
+        e=atoi((clave.substr(60,2).c_str()));
+        if((n==nc)&&(e==1))
+            v=true;
+    }
+}
+in.close();
+return v;
+}
+
+bool Transaccion::validarmonto(int n, float m)
+{
+    char linea[80];
+    string clave;
+    float s;
+    int nu;
+    bool v=false;
+    fstream is;
+    is.open("cuentas.txt", ios::in);
+    while(is && !is.eof())
+    {
+        is.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0)
+        {
+            s=atoi(clave.substr(50,51).c_str());
+            nu=atoi(clave.substr(10, 38).c_str());
+            if(n==nu)
+                if(m<=s)
+                {
+                    v=true;
+                }
+        }
+    }
+    return v;
+
+}
+
+void Transaccion::deposito(int n, float m){
+    float s;
+    char linea[80];
+    string clave;
+    ifstream o;
+    ofstream aux;
+    o.open("cuentas.txt", ios::in);
+    aux.open("cuentas_respaldo.txt", ios::out);
+    int numero, cedula;
+    float saldo;
+    string tipo;
+    bool estado;
+    while(o && !o.eof()){
+        o.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0){
+            tipo=(tipo, clave.substr(40,10).c_str());
+            cedula = atoi(clave.substr(0,9).c_str());
+            numero = atoi(clave.substr(10,39).c_str());
+            saldo = atof(clave.substr(50,59).c_str());
+            estado = (bool) atoi(clave.substr(60,61).c_str());
+            aux<<setiosflags(ios::left)<<setw(10)<<cedula;
+            aux<<setiosflags(ios::left)<<setw(30)<<numero;
+            aux<<setiosflags(ios::left)<<setw(10)<<tipo;
+            if(numero == n)
+                aux<<setiosflags(ios::left)<<setw(10)<<(saldo + m);
+            else
+                aux<<setiosflags(ios::left)<<setw(10)<<saldo;
+            aux<<setiosflags(ios::left)<<setw(2)<<estado;
+            aux<<endl;
+        }
+    }
+    aux.close();
+    o.close();
+    remove( "cuentas.txt" );
+    rename("cuentas_respaldo.txt","cuentas.txt");
+
+
+
+
+}
+
+
+
+void Transaccion::retiro( int n, float m)
+{
+    float s;
+    char linea[80];
+    string clave;
+    ifstream o;
+    ofstream aux;
+    o.open("cuentas.txt", ios::in);
+    aux.open("cuentas_respaldo.txt", ios::out);
+    int numero, cedula;
+    float saldo;
+    string tipo;
+    bool estado;
+    while(o && !o.eof()){
+        o.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0){
+            tipo=(tipo, clave.substr(40,10).c_str());
+            cedula = atoi(clave.substr(0,9).c_str());
+            numero = atoi(clave.substr(10,39).c_str());
+            saldo = atof(clave.substr(50,59).c_str());
+            estado = (bool) atoi(clave.substr(60,61).c_str());
+            aux<<setiosflags(ios::left)<<setw(10)<<cedula;
+            aux<<setiosflags(ios::left)<<setw(30)<<numero;
+            aux<<setiosflags(ios::left)<<setw(10)<<tipo;
+            if(numero == n)
+                aux<<setiosflags(ios::left)<<setw(10)<<(saldo - m);
+            else
+                aux<<setiosflags(ios::left)<<setw(10)<<saldo;
+            aux<<setiosflags(ios::left)<<setw(2)<<estado;
+            aux<<endl;
+        }
+    }
+    aux.close();
+    o.close();
+    remove( "cuentas.txt" );
+    rename("cuentas_respaldo.txt","cuentas.txt");
+}
+
+void Transaccion::guardar(){
+    estado=true;
+    bool v=false;
+    do{
+        cout<<"Nro cuenta:"; cin>>numero;
+        v=validar(numero);
+        if(v==false)
+            cout<<"El numero de cuenta no existe"<<endl;
+    }while(v==false);
+    do{
+        cout<<"Tipo de transaccion:"<<endl;
+        cout<<"1. Retiro"<<endl;
+        cout<<"2. Deposito"<<endl;
+        cin>>tipo;
+        if(tipo!='1' && tipo!='2')
+            cout<<"Tipo no valido"<<endl;
+    }while(tipo!='1' && tipo!='2');
+    if(tipo=='1')
+        nombretipo="Retiro";
+    else
+        nombretipo="Deposito";
+    v=false;
+    do{
+        cout<<"Monto de la transaccion: ";
+        cin>>monto;
+        if(tipo=='2')
+            v=true;
+        else
+            v=validarmonto(numero,monto );
+        if(!v)
+            cout<<"Monto superior al saldo de la cuenta"<<endl;
+    }while(v==false);
+
+    if(tipo=='1')
+        retiro(numero, monto);
+    else
+        deposito(numero, monto);
+    cout<<"Codigo de operacion: "; cin>>codigo;
+    ofstream o;
+    o.open("Transacciones.txt", ios::app);
+    o<<setiosflags(ios::left)<<setw(30)<<numero;
+    o<<setiosflags(ios::left)<<setw(10)<<nombretipo;
+    o<<setiosflags(ios::left)<<setw(10)<<monto;
+    o<<setiosflags(ios::left)<<setw(10)<<codigo;
+    o<<setiosflags(ios::left)<<setw(2)<<estado;
+    o<<endl;
+    o.close();
+
+}
+
+void Transaccion::mostrar()
+{
+    char linea [80];
+    string clave;
+    ifstream is;
+    bool v=false;
+    int n;
+    int nu;
+    int e;
+    do{
+        cout<<"Ingrese el numero de cuenta"<<endl;
+        cin>>n;
+        v=validar(n);
+        if(!v)
+            cout<<"Numero invalido"<<endl;
+    }while(!v);
+    is.open("transacciones.txt", ios::in);
+    while(is && !is.eof())
+    {
+        is.getline(linea, 70);
+        clave=linea;
+        if(clave.length()>0)
+        {
+            nu=atoi(clave.substr(0,30).c_str());
+            e=atoi(clave.substr(60,2).c_str());
+            if(nu==n)
+            {
+                if(e==1)
+                    cout<<clave.substr(0,60)<<endl;
+            }
+        }
+    }
+}
+
+#endif

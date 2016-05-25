@@ -1,0 +1,287 @@
+#ifndef CUENTA_H
+#define CUENTA_H
+class Cuenta
+{
+    int numero, cedula;
+    float saldo;
+    string tipo;
+    bool estado;
+public:
+    void guardar(Cliente);
+    bool validar(int);
+    void mostrarsaldo(Cliente);
+    void mostrar();
+    void modificar(Cliente,Transaccion tr);
+    void eliminar(Cliente cl, Transaccion tr);
+};
+
+void Cuenta::eliminar(Cliente cl, Transaccion tr){
+    int ce;
+    ifstream in;
+    ofstream o;
+    char linea[80];
+    string clave;
+    cout<<"Ingrese la cedula del cliente: "<<endl;
+    cin>>ce;
+    if(cl.validar(ce)){
+        int numero_cuenta;
+        cout<<"Ingrese la cuenta a eliminar: "<<endl;
+        cin>>numero_cuenta;
+        if(validar(numero_cuenta)){
+
+            in.open("cuentas.txt", ios::in);
+            o.open("cuentas_respaldo.txt",ios::out);
+            while(in && !in.eof())
+            {
+                in.getline(linea,70);
+                clave = linea;
+                if(clave.length() > 0){
+                    cedula=atoi(clave.substr(0,10).c_str());
+                    numero=atoi(clave.substr(10, 30).c_str());
+                    tipo=clave.substr(40, 10);
+                    saldo=atof(clave.substr(50, 10).c_str());
+                    if((numero_cuenta == numero) && (cedula == ce)){
+                        o<<setiosflags(ios::left)<<setw(10)<<cedula;
+                        o<<setiosflags(ios::left)<<setw(30)<<numero;
+                        o<<setiosflags(ios::left)<<setw(10)<<tipo;
+                        o<<setiosflags(ios::left)<<setw(10)<<saldo;
+                        o<<setiosflags(ios::left)<<setw(2)<<false;
+                        o<<endl;
+                        tr.eliminar(cedula,numero);
+                    }
+                    else{
+                        o<<setiosflags(ios::left)<<setw(10)<<cedula;
+                        o<<setiosflags(ios::left)<<setw(30)<<numero;
+                        o<<setiosflags(ios::left)<<setw(10)<<tipo;
+                        o<<setiosflags(ios::left)<<setw(10)<<saldo;
+                        o<<setiosflags(ios::left)<<setw(2)<<true;
+                        o<<endl;
+                    }
+                }
+            }
+            o.close();
+            in.close();
+            remove("cuentas.txt");
+            rename("cuentas_respaldo.txt", "cuentas.txt");
+        }
+    }
+    else{
+        cout<<"Cedula no encontrada"<<endl;
+    }
+}
+
+
+
+
+void Cuenta::modificar(Cliente cl, Transaccion tr){
+
+    limpiar;
+    bool mod_num_cuenta= false;
+    int cedula_aux = 0;
+    int numero_aux1 = 0;
+    int numero_aux2 = 0;
+    float saldo_aux = 0;
+    string tipo_aux;
+    char linea[80];
+    string clave;
+    cout<<"Ingrese la cedula del cliente"<<endl;
+    cin>>cedula_aux;
+    if(cl.validar(cedula_aux)){
+        int op = 0;
+        cout<<"Cliente encontrado, ingrese el campo a modificar"<<endl;
+        cout<<"Ingrese el numero de cuenta"<<endl;
+        cin>>numero_aux1;
+        if(validar(numero_aux1)){
+            cout<<" 1 - Numero de cuenta " <<endl;
+            cout<<" 2 - Tipo de cuenta " <<endl;
+            cout<<" 3 - Saldo "<<endl;
+            cin>>op;
+            numero_aux2 = numero_aux1;
+            switch(op){
+                case 1:
+                    mod_num_cuenta = true;
+                    cout<<"Ingrese el numero de cuenta: " <<endl;
+                    cin>>numero_aux2;
+                    break;
+                case 2:
+                    cout<<"Ingrese el tipo de cuenta"<<endl;
+                    cin>>tipo_aux;
+
+                    break;
+                case 3:
+                    cout<<"Ingrese el saldo de la cuenta"<<endl;
+                    cin>>saldo_aux;
+
+                    break;
+                default:
+                    cout<<"Ninguna opcion valida, proceso abortado"<<endl;
+                    break;
+            }
+            ofstream o;
+            ifstream in;
+            in.open("cuentas.txt", ios::in);
+            o.open("cuentas_respaldo.txt",ios::out);
+            while(in && !in.eof())
+            {
+                in.getline(linea, 70);
+                clave=linea;
+                if(clave.length()>0)
+                {
+                    cedula=atoi(clave.substr(0,10).c_str());
+                    numero=atoi(clave.substr(10, 30).c_str());
+                    tipo=clave.substr(40, 10);
+                    saldo=atof(clave.substr(50, 10).c_str());
+                    estado=atoi(clave.substr(60, 2).c_str());
+                    if((cedula == cedula_aux)&&(numero == numero_aux1)){
+                        o<<setiosflags(ios::left)<<setw(10)<<cedula_aux;
+                        if(numero_aux2 != numero){
+                            tr.mod_transacciones(numero, numero_aux2);
+                            o<<setiosflags(ios::left)<<setw(30)<<numero_aux2;
+                        }
+                        else{
+                            o<<setiosflags(ios::left)<<setw(30)<<numero;
+                        }
+
+                        if(tipo==tipo_aux)
+                            o<<setiosflags(ios::left)<<setw(10)<<tipo_aux;
+                        else
+                            o<<setiosflags(ios::left)<<setw(10)<<tipo;
+                        if(saldo_aux == 0)
+                            o<<setiosflags(ios::left)<<setw(10)<<saldo;
+                        else
+                            o<<setiosflags(ios::left)<<setw(10)<<saldo_aux;
+                        o<<setiosflags(ios::left)<<setw(2)<<estado;
+                        o<<endl;
+                    }
+                    else{
+                          o<<setiosflags(ios::left)<<setw(10)<<cedula;
+                          o<<setiosflags(ios::left)<<setw(30)<<numero;
+                          o<<setiosflags(ios::left)<<setw(10)<<tipo;
+                          o<<setiosflags(ios::left)<<setw(10)<<saldo;
+                          o<<setiosflags(ios::left)<<setw(2)<<estado;
+                          o<<endl;
+
+                    }
+                }
+            }
+            remove( "cuentas.txt" );
+            rename("cuentas_respaldo.txt","cuentas.txt");
+
+        }
+        else{
+            cout<<"Ninguna cuenta encontrada"<<endl;
+        }
+
+
+    }
+    else{
+        cout<<"Cedula no encontrada"<<endl;
+    }
+    pausa;
+
+}
+
+void Cuenta::mostrar()
+{
+    ifstream is;
+    char linea[80];
+    string clave;
+    int e;
+    is.open("cuentas.txt", ios::in);
+    while(is && !is.eof())
+    {
+        is.getline(linea, 80);
+        clave=linea;
+        if(clave.length()>0)
+        {
+            e=atoi(clave.substr(60).c_str());
+            if(e== 1)
+            cout<<clave.substr(0, 59)<<endl;
+        }
+
+
+    }
+    is.close();
+}
+
+void Cuenta::mostrarsaldo(Cliente cl)
+{
+    int ce;
+    char linea[80];
+    string clave;
+    ifstream is;
+    cout<<"Ingrese la cedula"<<endl;
+    cin>>ce;
+    if(cl.validar(ce)==false)
+        cout<<"La cedula no existe"<<endl;
+    else
+    {
+        is.open("cuentas.txt", ios::in);
+        while(is && !is.eof())
+        {
+            is.getline(linea, 70);
+            clave=linea;
+            if((atoi(clave.substr(0,9).c_str()))==ce)
+                cout<<clave.substr(10,62)<<endl;
+        }
+
+    }
+
+}
+
+bool Cuenta::validar(int nu){
+        char linea[256];
+        string clave;
+        bool va=false;
+        int cc;
+        int e;
+        ifstream in;
+        in.open("cuentas.txt", ios::in);
+        in.seekg(0);
+        while(in && !in.eof())
+        {
+            in.getline(linea, 80);
+            clave=linea;
+            if(clave.length() > 0 ){
+                cc=atoi((clave.substr(10,38).c_str()));
+                e=atoi((clave.substr(60,2).c_str()));
+                if((nu==cc) || (e==0))
+                    va=true;
+            }
+        }
+        in.close();
+        return va;
+    }
+
+
+void Cuenta::guardar(Cliente cl){
+    bool v=false;
+    estado=true;
+    do{
+        cout<<"Ingrese la cedula: "; cin>>cedula;
+        v=cl.validar(cedula);
+        if(v==false)
+            cout<<"la cedula no existe"<<endl;
+        }while(v==false);
+        v=false;
+        do{
+            cout<<"Ingrese el numero de cuenta: "; cin>>numero;
+            v=validar(numero);
+            if(v==true)
+            cout<<"el numero de cuenta ya existe"<<endl;
+        }while(v==true);
+        cout<<"Ingrese el tipo de cuenta: ";
+        cin>>tipo;
+        cout<<"Ingrese el saldo: "; cin>>saldo;
+        ofstream o;
+        o.open("cuentas.txt", ios::out | ios::app);
+        o<<setiosflags(ios::left)<<setw(10)<<cedula;
+        o<<setiosflags(ios::left)<<setw(30)<<numero;
+        o<<setiosflags(ios::left)<<setw(10)<<tipo;
+        o<<setiosflags(ios::left)<<setw(10)<<saldo;
+        o<<setiosflags(ios::left)<<setw(2)<<estado;
+        o<<endl;
+        o.close();
+    }
+#endif // CUENTA_H
+

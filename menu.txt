@@ -1,0 +1,38 @@
+#ifndef MENU_H
+
+#define MENU_H
+
+char menu()
+{
+    char op;
+    limpiar;
+    cout<<"1. Agregar cliente"<<endl;
+    cout<<"2. Crear cuenta"<<endl;
+    cout<<"3. Modificar una cuenta"<<endl;
+    cout<<"4. Eliminar una cuenta"<<endl;
+    cout<<"5. Transaccion"<<endl;
+    cout<<"6. Reportes"<<endl;
+    cout<<"7. Salir"<<endl;
+    cin>>op;
+    limpiar;
+    return op;
+}
+
+
+char menu2()
+{
+    char op;
+    limpiar;
+    cout<<"1. Transacciones de una cuenta "<<endl;
+    cout<<"2. Datos de un cliente"<<endl;
+    cout<<"3. Saldos de cuentas de un cliente"<<endl;
+    cout<<"4. Cuentas en el banco"<<endl;
+    cout<<"5. Clientes"<<endl;
+    cout<<"6. Salir"<<endl;
+    cin>>op;
+    limpiar;
+    return op;
+}
+
+
+#endif

@@ -1,0 +1,123 @@
+// A2DD.h
+#ifndef CLIENTE_H
+#define CLIENTE_H
+
+class Cliente
+{
+    string nombre, apellido, direccion;
+    int cedula;
+    bool estado;
+public:
+    void guardar();
+    void modificar();
+    bool validar(int);
+    void mostrar();
+    void mostrar_unico();
+};
+
+
+
+    //Crear y Guardar los Clientes
+    void Cliente::guardar(){
+        bool v=false;
+        estado=true;
+        fstream o;
+        o.open("clientes.txt", ios::out | ios::app);
+        do{
+            cout<<"Cedula del cliente: ";
+            cin>>cedula;
+            v=validar(cedula);
+            if(v==true)
+                cout<<"Cedula existente";
+        }while(v==true);
+
+        cout<<"Nombre del cliente: "; cin>>nombre;
+        cout<<"Apellido del cliente: "; cin>>apellido;
+        cout<<"Direccion: "; cin>>direccion;
+
+        o<<setiosflags(ios::left)<<setw(10)<<cedula;
+        o<<setiosflags(ios::left)<<setw(15)<<nombre;
+        o<<setiosflags(ios::left)<<setw(15)<<apellido;
+        o<<setiosflags(ios::left)<<setw(30)<<direccion;
+        o<<setiosflags(ios::left)<<setw(2)<<estado;
+        o<<endl;
+
+        o.close();
+    }
+
+    bool Cliente::validar(int ce){
+        char linea[80];
+        string clave;
+        bool va=false;
+        int cc;
+        ifstream in;
+        in.open("clientes.txt", ios::in);
+        while(in && !in.eof())
+        {
+            in.getline(linea, 80);
+            clave=linea;
+            cc=atoi((clave.substr(0,10)).c_str());
+            if(ce==cc)
+                va=true;
+        }
+        return va;
+        in.close();
+    }
+
+
+
+    void Cliente::mostrar()
+{
+    char reg[120];
+    fstream is;
+    is.open("clientes.txt", ios::in);
+    if(!is)
+    {
+        cout<<"Error de apertura"<<endl; pausa;
+        exit(1);
+    }
+
+
+    while(is && !is.eof())
+    {
+        is.getline(reg, 120);
+        cout<<reg<<endl;
+    }
+    is.close();
+
+}
+
+void Cliente::mostrar_unico()
+{
+    int cc, ce;
+    fstream is;
+    char linea[120];
+    string clave;
+    is.open("clientes.txt", ios::in);
+    if(!is)
+    {
+        cout<<"Error de apertura"<<endl; pausa;
+        exit(1);
+    }
+
+    cout<<"Ingrese la Cedula del cliente:"<<endl;
+    cin>>ce;
+    if(validar(ce)==false)
+        cout<<"cedula no existe"<<endl;
+
+    while(is && !is.eof())
+    {
+
+            is.getline(linea, 80);
+            clave=linea;
+            cc=atoi((clave.substr(0,10)).c_str());
+            if(ce==cc)
+                cout<<linea<<endl;
+
+    }
+    is.close();
+
+}
+
+#endif
+
